@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <title>नीलम इलेक्ट्रॉनिक्स - एडमिन पैनल</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f0f2f5; }
+        .product-img { height: 150px; object-fit: cover; border-top-left-radius: 8px; border-top-right-radius: 8px; }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-dark bg-dark shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fs-3" href="#">⚙️ नीलम इलेक्ट्रॉनिक्स - एडमिन डैशबोर्ड</a>
+            <a href="/" target="_blank" class="btn btn-outline-warning btn-sm">ग्राहक व्यू देखें (Live Site)</a>
+        </div>
+    </nav>
+
+    <div class="container my-4">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <div class="row">
+            <!-- फॉर्म सेक्शन -->
+            <div class="col-lg-4 mb-4">
+                <div class="card p-3 shadow-sm mb-4 border-warning">
+                    <h4>📦 {% if prod_to_edit %}उत्पाद एडिट करें{% else %}नया सामान जोड़ें{% endif %}</h4>
+                    <form action="/add_product" method="POST" enctype="multipart/form-data" class="mt-2">
+                        {% if prod_to_edit %}
+                            <input type="hidden" name="product_id" value="{{ prod_to_edit.id }}">
+                        {% endif %}
+                        <div class="mb-2">
+                            <label class="form-label">सामान का नाम</label>
+                            <input type="text" class="form-control" name="name" value="{{ prod_to_edit.name if prod_to_edit else '' }}" required>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">श्रेणी (Category)</label>
+                            <input type="text" class="form-control" name="category" value="{{ prod_to_edit.category if prod_to_edit else '' }}" placeholder="जैसे: LED TV">
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">वास्तविक मूल्य (₹)</label>
+                            <input type="number" step="0.01" class="form-control" name="price" value="{{ prod_to_edit.price if prod_to_edit else '' }}" required>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">ऑफर/डिस्काउंट मूल्य (₹)</label>
+                            <input type="number" step="0.01" class="form-control" name="discount_price" value="{{ prod_to_edit.discount_price if prod_to_edit else '' }}">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">फोटो {% if prod_to_edit %}(न बदलें तो खाली छोड़ें){% endif %}</label>
+                            <input type="file" class="form-control" name="image" accept="image/*" {% if not prod_to_edit %}required{% endif %}>
+                        </div>
+                        <button type="submit" class="btn btn-warning w-100 fw-bold">{% if prod_to_edit %}अपडेट करें{% else %}उत्पाद अपलोड करें{% endif %}</button>
+                        {% if prod_to_edit %}
+                            <a href="/admin" class="btn btn-secondary w-100 mt-2">रद्द करें</a>
+                        {% endif %}
+                    </form>
+                </div>
+
+                <div class="card p-3 shadow-sm border-dark">
+                    <h4>👥 {% if cust_to_edit %}ग्राहक एडिट करें{% else %}ग्राहक और रिवॉर्ड्स{% endif %}</h4>
+                    <form action="/add_customer" method="POST" class="mt-2">
+                        {% if cust_to_edit %}
+                            <input type="hidden" name="customer_id" value="{{ cust_to_edit.id }}">
+                        {% endif %}
+                        <div class="mb-2">
+                            <label class="form-label">ग्राहक का नाम</label>
+                            <input type="text" class="form-control" name="name" value="{{ cust_to_edit.name if cust_to_edit else '' }}" required>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">मोबाइल नंबर</label>
+                            <input type="text" class="form-control" name="phone" value="{{ cust_to_edit.phone if cust_to_edit else '' }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">रिवॉर्ड पॉइंट्स</label>
+                            <input type="number" class="form-control" name="points" value="{{ cust_to_edit.reward_points if cust_to_edit else '10' }}" required>
+                        </div>
+                        <button type="submit" class="btn btn-dark w-100 fw-bold">{% if cust_to_edit %}ग्राहक अपडेट करें{% else %}डेटा सुरक्षित करें{% endif %}</button>
+                        {% if cust_to_edit %}
+                            <a href="/admin" class="btn btn-secondary w-100 mt-2">रद्द करें</a>
+                        {% endif %}
+                    </form>
+                </div>
+            </div>
+
+            <!-- डिस्प्ले और मैनेजमेंट सेक्शन -->
+            <div class="col-lg-8">
+                <h3 class="mb-3">🔥 उत्पाद प्रबंधन (Product Management)</h3>
+                <div class="row row-cols-1 row-cols-md-3 g-3 mb-5">
+                    {% for p in products %}
+                    <div class="col">
+                        <div class="card h-100 shadow-sm">
+                            <img src="{{ url_for('static', filename='uploads/' + p.image) }}" class="product-img" alt="{{ p.name }}">
+                            <div class="card-body p-2">
+                                <h6 class="fw-bold text-truncate">{{ p.name }}</h6>
+                                <span class="text-danger fw-bold">₹{{ p.discount_price if p.discount_price else p.price }}</span>
+                                <div class="mt-2 d-flex justify-content-between">
+                                    <a href="/admin?edit_product_id={{ p.id }}" class="btn btn-sm btn-outline-primary w-50 me-1">Edit</a>
+                                    <a href="/delete_product/{{ p.id }}" class="btn btn-sm btn-outline-danger w-50" onclick="return confirm('हटाना चाहते हैं?');">Delete</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <p class="text-muted">कोई उत्पाद नहीं है।</p>
+                    {% endfor %}
+                </div>
+
+                <h3 class="mb-3">📊 सुरक्षित ग्राहक डेटाबेस और रिवॉर्ड्स</h3>
+                <div class="card shadow-sm p-3">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>नाम</th>
+                                    <th>मोबाइल</th>
+                                    <th>पॉइंट्स</th>
+                                    <th class="text-end">एक्शन</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for c in customers %}
+                                <tr>
+                                    <td>{{ c.name }}</td>
+                                    <td>{{ c.phone }}</td>
+                                    <td><span class="badge bg-success">{{ c.reward_points }} pts</span></td>
+                                    <td class="text-end">
+                                        <a href="/admin?edit_customer_id={{ c.id }}" class="btn btn-sm btn-outline-primary">Edit</a>
+                                        <a href="/delete_customer/{{ c.id }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('हटाना चाहते हैं?');">Delete</a>
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted">कोई ग्राहक नहीं मिला।</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+neelam_electronics/
+│
+├── app.py
+├── static/
+│   └── uploads/       # यहाँ आपके उत्पादों की तस्वीरें सेव होंगी
+└── templates/
+    └── index.html
