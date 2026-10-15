@@ -2,50 +2,51 @@
 <html lang="hi">
 <head>
     <meta charset="UTF-8">
-    <title>Neelam Electronics - Online Store</title>
+    <title>नीलम इलेक्ट्रॉनिक्स - ऑनलाइन स्टोर</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body { background-color: #f8f9fa; }
         .navbar-brand { font-weight: bold; color: #ff6600 !important; }
         .product-card { border: none; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.05); transition: 0.3s; background: #fff; }
         .product-img { height: 200px; object-fit: cover; border-top-left-radius: 10px; border-top-right-radius: 10px; }
-        .discount-badge { background-color: #ff4757; color: white; font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; }
+        .discount-badge { background-color: #dc3545; color: white; font-size: 0.8rem; padding: 3px 8px; border-radius: 4px; font-weight: bold; }
     </style>
 </head>
 <body>
 
+    <!-- नेविगेशन बार -->
     <nav class="navbar navbar-dark bg-dark shadow-sm">
         <div class="container">
-            <a class="navbar-brand fs-3" href="#">⚡ Neelam Electronics</a>
-            <span class="text-white-50">24/7 Online Catalogue</span>
+            <a class="navbar-brand fs-3" href="#">⚡ नीलम इलेक्ट्रॉनिक्स (Neelam Electronics)</a>
+            <span class="text-white-50">24/7 ऑनलाइन कैटलॉग</span>
         </div>
     </nav>
 
     <div class="container my-5">
-        <h2 class="mb-4 text-center">🔥 Hamare Uplabdh Utpad</h2>
+        <h2 class="mb-4 text-center fw-bold text-dark">🔥 हमारे उपलब्ध उत्पाद और विशेष ऑफर</h2>
         <div class="row row-cols-1 row-cols-md-3 g-4">
             {% for p in products %}
             <div class="col">
                 <div class="card product-card h-100">
                     <img src="{{ url_for('static', filename='uploads/' + p.image) }}" class="product-img" alt="{{ p.name }}">
                     <div class="card-body">
-                        <span class="badge bg-secondary mb-1">{{ p.category }}</span>
-                        <h5 class="card-title fw-bold">{{ p.name }}</h5>
-                        <div class="mt-2">
+                        <span class="badge bg-secondary mb-2">{{ p.category }}</span>
+                        <h5 class="card-title fw-bold text-dark">{{ p.name }}</h5>
+                        <div class="mt-3">
                             {% if p.discount_price %}
-                                <span class="text-muted text-decoration-line-through">₹{{ p.price }}</span>
-                                <span class="text-danger fw-bold fs-5 ms-2">₹{{ p.discount_price }}</span>
-                                <div class="mt-1"><span class="discount-badge">Vishesh Chhoot Uplabdh</span></div>
+                                <span class="text-muted text-decoration-line-through fs-6">₹{{ p.price }}</span>
+                                <span class="text-danger fw-bold fs-4 ms-2">₹{{ p.discount_price }}</span>
+                                <div class="mt-2"><span class="discount-badge">विशेष छूट उपलब्ध</span></div>
                             {% else %}
-                                <span class="fw-bold fs-5 text-success">₹{{ p.price }}</span>
+                                <span class="fw-bold fs-4 text-success">₹{{ p.price }}</span>
                             {% endif %}
                         </div>
                     </div>
                 </div>
             </div>
             {% else %}
-            <div class="col-12 text-center">
-                <p class="text-muted fs-5">Abhi koi utpad pradarshit nahi hai. Kripya baad mein dekhein.</p>
+            <div class="col-12 text-center py-5">
+                <p class="text-muted fs-5">वर्तमान में कोई उत्पाद प्रदर्शित नहीं है। कृपया बाद में देखें।</p>
             </div>
             {% endfor %}
         </div>
