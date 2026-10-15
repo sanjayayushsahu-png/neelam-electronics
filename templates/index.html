@@ -23,7 +23,13 @@
             color: #ffffff;
             font-size: 1rem;
         }
-
+        .reward-box {
+            background: #fff3cd;
+            border: 2px dashed #ffc107;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
         .product-card { 
             border: none; 
             border-radius: 10px; 
@@ -31,10 +37,8 @@
             background: #fff; 
             margin-bottom: 20px;
         }
-        
-        /* इमेज को ज़ूम और कटने से बचाने के लिए contain का उपयोग */
         .product-img { 
-            height: 200px; 
+            height: 180px; 
             width: 100%;
             object-fit: contain; 
             background-color: #fcfcfc;
@@ -42,7 +46,6 @@
             border-top-right-radius: 10px; 
             padding: 5px;
         }
-        
         .card-title {
             font-size: 1.1rem; 
             font-weight: bold;
@@ -67,6 +70,35 @@
     </nav>
 
     <div class="container my-4">
+        
+        <!-- ग्राहक रिवॉर्ड पॉइंट्स चेक करने का सेक्शन -->
+        <div class="row justify-content-center mb-4">
+            <div class="col-md-6">
+                <div class="card shadow-sm p-3 border-warning">
+                    <h5 class="fw-bold text-center mb-3">🎁 अपने रिवॉर्ड पॉइंट्स (Reward Points) चेक करें</h5>
+                    <form method="POST" action="/">
+                        <div class="input-group mb-2">
+                            <input type="text" class="form-control" name="phone" placeholder="अपना रजिस्टर्ड मोबाइल नंबर दर्ज करें" required>
+                            <button class="btn btn-warning fw-bold" type="submit">पॉइंट्स देखें</button>
+                        </div>
+                    </form>
+
+                    <!-- यदि सर्च करने पर परिणाम मिला हो -->
+                    {% if searched %}
+                        <div class="reward-box text-center mt-3">
+                            {% if customer_result %}
+                                <h4 class="text-success fw-bold">नमस्ते, {{ customer_result.name }} जी!</h4>
+                                <p class="mb-1">आपका मोबाइल नंबर: <strong>{{ customer_result.phone }}</strong></p>
+                                <h3 class="text-primary mt-2">🌟 आपके कुल रिवॉर्ड पॉइंट्स: <span class="badge bg-success">{{ customer_result.reward_points }}</span></h3>
+                            {% else %}
+                                <p class="text-danger fw-bold mb-0">❌ इस मोबाइल नंबर से कोई रिकॉर्ड नहीं मिला। कृपया दुकान पर संपर्क करें।</p>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
         <h3 class="mb-4 text-center fw-bold text-dark">🔥 हमारे उपलब्ध उत्पाद और विशेष ऑफर</h3>
         <div class="row row-cols-1 row-cols-md-3 g-3">
             {% for p in products %}
