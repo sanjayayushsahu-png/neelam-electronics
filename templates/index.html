@@ -8,7 +8,6 @@
     <style>
         body { background-color: #f8f9fa; }
         
-        /* Chodi aur digital peele rang ki patti (Balanced Size) */
         .custom-navbar {
             background-color: #000000 !important;
             border-bottom: 4px solid #ffcc00;
@@ -25,7 +24,6 @@
             font-size: 1rem;
         }
 
-        /* Product cards ko standard aur neat banana */
         .product-card { 
             border: none; 
             border-radius: 10px; 
@@ -33,12 +31,18 @@
             background: #fff; 
             margin-bottom: 20px;
         }
+        
+        /* इमेज को ज़ूम और कटने से बचाने के लिए contain का उपयोग */
         .product-img { 
-            height: 180px; 
-            object-fit: cover; 
+            height: 200px; 
+            width: 100%;
+            object-fit: contain; 
+            background-color: #fcfcfc;
             border-top-left-radius: 10px; 
             border-top-right-radius: 10px; 
+            padding: 5px;
         }
+        
         .card-title {
             font-size: 1.1rem; 
             font-weight: bold;
@@ -55,7 +59,6 @@
 </head>
 <body>
 
-    <!-- Patti -->
     <nav class="navbar navbar-expand-lg custom-navbar shadow-sm">
         <div class="container d-flex justify-content-between align-items-center">
             <a class="navbar-brand mb-0" href="#">⚡ नीलम इलेक्ट्रॉनिक्स परपोड़ी</a>
