@@ -4,11 +4,17 @@ from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 
-# Render और लोकल कंप्यूटर दोनों के लिए सही पाथ और डेटाबेस सेटिंग्स
+# Render पर सही पाथ और डेटाबेस सेटिंग्स
 basedir = os.path.abspath(os.path.dirname(__file__))
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'neelam.db')
 app.config['SECRET_KEY'] = 'neelam_electronics_secret_key_2026'
-app.config['UPLOAD_FOLDER'] = os.path.join(basedir, 'static/uploads')
+
+# सुनिश्चित करें कि static और uploads फोल्डर मौजूद हों
+UPLOAD_FOLDER = os.path.join(basedir, 'static', 'uploads')
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 db = SQLAlchemy(app)
 
@@ -30,15 +36,14 @@ class Customer(db.Model):
 
 with app.app_context():
     db.create_all()
-    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
-# 1. ग्राहकों के लिए होम पेज (केवल कैटलॉग दिखेगा, कोई Edit/Delete नहीं)
+# 1. ग्राहकों के लिए होम पेज
 @app.route('/')
 def index():
     products = Product.query.all()
     return render_template('index.html', products=products)
 
-# 2. एडमिन पैनल (यहाँ Edit, Delete और डेटाबेस दिखेगा)
+# 2. एडमिन पैनल
 @app.route('/admin')
 def admin():
     products = Product.query.all()
