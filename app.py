@@ -8,12 +8,6 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'neelam.db')
 app.config['SECRET_KEY'] = 'neelam_electronics_secret_key_2026'
 
-UPLOAD_FOLDER = os.path.join(basedir, 'static', 'uploads')
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
-if not os.path.exists(UPLOAD_FOLDER):
-    os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-
 db = SQLAlchemy(app)
 
 class Product(db.Model):
@@ -21,7 +15,7 @@ class Product(db.Model):
     name = db.Column(db.String(100), nullable=False)
     price = db.Column(db.Float, nullable=False)
     discount_price = db.Column(db.Float, nullable=True)
-    image = db.Column(db.String(100), nullable=False)
+    image_url = db.Column(db.String(500), nullable=False)  # फोटो का सीधा लिंक
     category = db.Column(db.String(50), nullable=True)
 
 class Customer(db.Model):
@@ -33,7 +27,6 @@ class Customer(db.Model):
 with app.app_context():
     db.create_all()
 
-# 1. ग्राहकों के लिए होम पेज (कैटलॉग और पॉइंट्स चेक करने का विकल्प)
 @app.route('/', methods=['GET', 'POST'])
 def index():
     products = Product.query.all()
@@ -49,7 +42,6 @@ def index():
             
     return render_template('index.html', products=products, customer_result=customer_result, searched=searched)
 
-# 2. एडमिन पैनल
 @app.route('/admin')
 def admin():
     products = Product.query.all()
@@ -69,7 +61,7 @@ def add_product():
     price = float(request.form['price'])
     discount_price = float(request.form['discount_price']) if request.form['discount_price'] else None
     category = request.form['category']
-    file = request.files.get('image')
+    image_url = request.form['image_url']  # सीधे लिंक प्राप्त करें
     
     if prod_id:
         p = Product.query.get(prod_id)
@@ -77,20 +69,12 @@ def add_product():
         p.price = price
         p.discount_price = discount_price
         p.category = category
-        if file and file.filename != '':
-            filename = file.filename
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            p.image = filename
+        p.image_url = image_url
         flash('उत्पाद सफलतापूर्वक अपडेट कर दिया गया!', 'success')
     else:
-        if file and file.filename != '':
-            filename = file.filename
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            new_prod = Product(name=name, price=price, discount_price=discount_price, image=filename, category=category)
-            db.session.add(new_prod)
-            flash('नया उत्पाद सफलतापूर्वक जोड़ा गया!', 'success')
-        else:
-            flash('कृपया उत्पाद की फोटो चुनें!', 'danger')
+        new_prod = Product(name=name, price=price, discount_price=discount_price, image_url=image_url, category=category)
+        db.session.add(new_prod)
+        flash('नया उत्पाद सफलतापूर्वक जोड़ा गया!', 'success')
             
     db.session.commit()
     return redirect(url_for('admin'))
