@@ -4,12 +4,10 @@ from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 
-# Render पर सही पाथ और डेटाबेस सेटिंग्स
 basedir = os.path.abspath(os.path.dirname(__file__))
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'neelam.db')
 app.config['SECRET_KEY'] = 'neelam_electronics_secret_key_2026'
 
-# सुनिश्चित करें कि static और uploads फोल्डर मौजूद हों
 UPLOAD_FOLDER = os.path.join(basedir, 'static', 'uploads')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
@@ -18,7 +16,6 @@ if not os.path.exists(UPLOAD_FOLDER):
 
 db = SQLAlchemy(app)
 
-# 1. उत्पाद (Product) डेटाबेस मॉडल
 class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
@@ -27,7 +24,6 @@ class Product(db.Model):
     image = db.Column(db.String(100), nullable=False)
     category = db.Column(db.String(50), nullable=True)
 
-# 2. ग्राहक और रिवॉर्ड्स (Customer) डेटाबेस मॉडल
 class Customer(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
@@ -37,11 +33,21 @@ class Customer(db.Model):
 with app.app_context():
     db.create_all()
 
-# 1. ग्राहकों के लिए होम पेज
-@app.route('/')
+# 1. ग्राहकों के लिए होम पेज (कैटलॉग और पॉइंट्स चेक करने का विकल्प)
+@app.route('/', methods=['GET', 'POST'])
 def index():
     products = Product.query.all()
-    return render_template('index.html', products=products)
+    customer_result = None
+    searched = False
+    
+    if request.method == 'POST':
+        phone_input = request.form.get('phone')
+        searched = True
+        customer_result = Customer.query.filter_by(phone=phone_input).first()
+        if not customer_result:
+            flash('इस मोबाइल नंबर से कोई ग्राहक रजिस्टर्ड नहीं है!', 'danger')
+            
+    return render_template('index.html', products=products, customer_result=customer_result, searched=searched)
 
 # 2. एडमिन पैनल
 @app.route('/admin')
@@ -56,7 +62,6 @@ def admin():
 
     return render_template('admin.html', products=products, customers=customers, prod_to_edit=prod_to_edit, cust_to_edit=cust_to_edit)
 
-# 3. उत्पाद जोड़ने या अपडेट करने का रूट
 @app.route('/add_product', methods=['POST'])
 def add_product():
     prod_id = request.form.get('product_id')
@@ -90,7 +95,6 @@ def add_product():
     db.session.commit()
     return redirect(url_for('admin'))
 
-# 4. उत्पाद हटाने का रूट
 @app.route('/delete_product/<int:id>')
 def delete_product(id):
     p = Product.query.get_or_404(id)
@@ -99,7 +103,6 @@ def delete_product(id):
     flash('उत्पाद को हटा दिया गया है!', 'info')
     return redirect(url_for('admin'))
 
-# 5. ग्राहक और रिवॉर्ड पॉइंट जोड़ने या अपडेट करने का रूट
 @app.route('/add_customer', methods=['POST'])
 def add_customer():
     cust_id = request.form.get('customer_id')
@@ -126,7 +129,6 @@ def add_customer():
     db.session.commit()
     return redirect(url_for('admin'))
 
-# 6. ग्राहक डेटा हटाने का रूट
 @app.route('/delete_customer/<int:id>')
 def delete_customer(id):
     c = Customer.query.get_or_404(id)
